@@ -25,43 +25,53 @@ const FILM_CATALOG = [
   }
 ];
 
+function applyWallet(
+  data: { id: string; address: string; balance: string; platformFeeAddress: string },
+  setTestWallet: (w: { id: string; address: string; balance: string } | null) => void,
+) {
+  const wallet = { id: data.id, address: data.address, balance: data.balance };
+  setTestWallet(wallet);
+  sessionStorage.setItem('testWallet', JSON.stringify(wallet));
+  sessionStorage.setItem('viewerWalletId', data.id);
+  sessionStorage.setItem('creatorWalletAddress', data.platformFeeAddress);
+}
+
 export default function HomeCatalog() {
   const [isProvisioning, setIsProvisioning] = useState(false);
   const [testWallet, setTestWallet] = useState<{ id: string; address: string; balance: string } | null>(null);
   const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
+    const viewerId = localStorage.getItem('viewerId');
+    if (!viewerId) return;
+
     const stored = sessionStorage.getItem('testWallet');
     if (stored) {
-      try { setTestWallet(JSON.parse(stored)); } catch {}
+      try {
+        const parsed = JSON.parse(stored);
+        setTestWallet(parsed);
+      } catch {}
     }
-    const viewerId = localStorage.getItem('viewerId');
-    if (viewerId) {
-      fetchFreshWallet(viewerId);
-    }
+
+    (async () => {
+      try {
+        const walletId = sessionStorage.getItem('viewerWalletId');
+        const res = await fetch('/api/wallet/provision', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ viewerId, walletId }),
+        });
+        const data = await res.json();
+        if (data.balance) {
+          setTestWallet((prev) => prev ? { ...prev, balance: data.balance } : null);
+        } else {
+          console.warn('[balance-refresh] No balance in response:', res.status, data);
+        }
+      } catch (err) {
+        console.warn('[balance-refresh] Fetch error:', err);
+      }
+    })();
   }, []);
-
-  const applyWallet = (data: { id: string; address: string; balance: string; platformFeeAddress: string }) => {
-    const wallet = { id: data.id, address: data.address, balance: data.balance };
-    setTestWallet(wallet);
-    sessionStorage.setItem('testWallet', JSON.stringify(wallet));
-    sessionStorage.setItem('viewerWalletId', data.id);
-    sessionStorage.setItem('creatorWalletAddress', data.platformFeeAddress);
-  };
-
-  const fetchFreshWallet = async (viewerId: string) => {
-    try {
-      const res = await fetch('/api/wallet/provision', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ viewerId }),
-      });
-      const data = await res.json();
-      if (data.id) applyWallet(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   const bootstrapUserWallet = async () => {
     setIsProvisioning(true);
@@ -77,7 +87,7 @@ export default function HomeCatalog() {
         body: JSON.stringify({ viewerId }),
       });
       const data = await res.json();
-      if (data.id) applyWallet(data);
+      if (data.id) applyWallet(data, setTestWallet);
     } catch (err) {
       console.error(err);
     } finally {
@@ -108,7 +118,7 @@ export default function HomeCatalog() {
                 disabled={isProvisioning}
                 className="text-sm font-medium bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-1.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isProvisioning ? 'Initializing…' : 'Setup Sandbox'}
+                {isProvisioning ? 'Initializing…' : 'Launch Wallet'}
               </button>
             ) : (
               <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5">
@@ -116,7 +126,7 @@ export default function HomeCatalog() {
                 <span className="text-xs font-mono text-zinc-400">
                   {testWallet.address.slice(0, 6)}&hellip;{testWallet.address.slice(-4)}
                 </span>
-                <span className="text-xs font-medium text-zinc-100">{testWallet.balance} USDC</span>
+                <span className="text-xs font-medium text-zinc-100">{parseFloat(testWallet.balance).toFixed(2)} USDC</span>
               </div>
             )}
 

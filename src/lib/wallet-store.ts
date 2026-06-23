@@ -1,37 +1,30 @@
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { join } from 'path';
-
-const STORE_PATH = join(process.cwd(), '.wallets.json');
+import { kvGet, kvSet } from './kv';
 
 export interface ViewerWallet {
-    id: string;
-    address: string;
+  id: string;
+  address: string;
 }
 
 export interface WalletStore {
-    walletSetId?: string;
-    platformFeeAddress?: string;
-    viewers: Record<string, ViewerWallet>;
+  walletSetId?: string;
+  platformFeeAddress?: string;
+  viewers: Record<string, ViewerWallet>;
 }
 
-export function loadWalletStore(): WalletStore {
-    let store: WalletStore = { viewers: {} };
-    try {
-        if (existsSync(STORE_PATH)) {
-            store = JSON.parse(readFileSync(STORE_PATH, 'utf-8'));
-        }
-    } catch {
-        // ignore corrupt file
-    }
+const WALLET_KEY = 'wallet:store';
 
-    if (!store.walletSetId && process.env.CIRCLE_WALLET_SET_ID) {
-        store.walletSetId = process.env.CIRCLE_WALLET_SET_ID;
-        saveWalletStore(store);
-    }
+export async function loadWalletStore(): Promise<WalletStore> {
+  const raw = await kvGet(WALLET_KEY);
+  const store: WalletStore = raw ? JSON.parse(raw) : { viewers: {} };
 
-    return store;
+  if (!store.walletSetId && process.env.CIRCLE_WALLET_SET_ID) {
+    store.walletSetId = process.env.CIRCLE_WALLET_SET_ID;
+    await saveWalletStore(store);
+  }
+
+  return store;
 }
 
-export function saveWalletStore(data: WalletStore): void {
-    writeFileSync(STORE_PATH, JSON.stringify(data, null, 2));
+export async function saveWalletStore(data: WalletStore): Promise<void> {
+  await kvSet(WALLET_KEY, JSON.stringify(data));
 }

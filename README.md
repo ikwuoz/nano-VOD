@@ -30,13 +30,13 @@ Traditional paywalls require heavy login flows, credit card processing, and fixe
 
 ### 1. Clone the repository and install dependencies
 ```bash
-git clone https://github.com
-cd arc-stream-vod
+git clone https://github.com/ikwuoz/nano-VOD.git
+cd nano-VOD
 npm install
 ```
 
 ### 2. Configure Environment Variables
-Create a `.env.local` file in the project root directory:
+Create a `.env` file in the project root directory:
 ```bash
 # Circle Developer Configurations
 CIRCLE_DEVELOPER_KEY="your_circle_developer_api_key"
