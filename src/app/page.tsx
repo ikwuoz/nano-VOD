@@ -38,20 +38,23 @@ function applyWallet(
 
 export default function HomeCatalog() {
   const [isProvisioning, setIsProvisioning] = useState(false);
-  const [testWallet, setTestWallet] = useState<{ id: string; address: string; balance: string } | null>(null);
+  const [testWallet, setTestWallet] = useState<{ id: string; address: string; balance: string } | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const viewerId = localStorage.getItem('viewerId');
+    if (!viewerId) return null;
+    const stored = sessionStorage.getItem('testWallet');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch {}
+    }
+    return null;
+  });
   const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
     const viewerId = localStorage.getItem('viewerId');
     if (!viewerId) return;
-
-    const stored = sessionStorage.getItem('testWallet');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setTestWallet(parsed);
-      } catch {}
-    }
 
     (async () => {
       try {
