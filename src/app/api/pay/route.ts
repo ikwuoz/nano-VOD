@@ -1,99 +1,97 @@
 import { NextResponse } from 'next/server';
-import { circleClient } from '@/lib/circle';
-import { notifyPayment } from '@/lib/payment-events';
+import { getCircleClient } from '@/lib/circle';
+import { getPlatformFeeAddress } from '../wallet/provision/route';
 import { parseMicroUSDC } from '@/lib/usdc-math';
 import { checkCap, addSpend } from '@/lib/spending-cap';
 import { recordPayment } from '@/lib/metrics';
-import { getPlatformFeeAddress } from '../wallet/provision/route';
 import { buildPaymentRequiredHeader } from '@/lib/x402';
-import { loadSessions, saveSessions } from '@/lib/session-store';
-
-// Tracks when a user last successfully paid.
-export const paymentSessions = loadSessions();
+import { setSession } from '@/lib/session-store';
 
 async function executeSplitPayment(params: {
-    viewerWalletId: string;
-    amount: string;
-}) {
-    const { viewerWalletId, amount } = params;
+  viewerWalletId: string;
+  amount: string;
+}): Promise<{ status: 'paid' } | { status: '402'; error: string; header: string }> {
+  const { viewerWalletId, amount } = params;
+  const platformWallet = await getPlatformFeeAddress();
 
-    if (!process.env.CIRCLE_ENTITY_SECRET) {
-        console.log('[PAY] CIRCLE_ENTITY_SECRET not set — skipping Circle transaction');
-        return;
-    }
-
-    const platformWallet = getPlatformFeeAddress();
-    if (!platformWallet) {
-        console.log('[PAY] No platform wallet configured — skipping Circle transaction');
-        return;
-    }
-
-    console.log('[PAY] Creating Circle transaction:', {
-        walletId: viewerWalletId,
-        destinationAddress: platformWallet,
-        amount: [amount],
-        tokenAddress: '0x3600000000000000000000000000000000000000',
-        blockchain: 'ARC-TESTNET',
+  if (!process.env.CIRCLE_ENTITY_SECRET) {
+    const paymentHeader = buildPaymentRequiredHeader({
+      streamUrl: '/api/stream',
+      amountMicroUSDC: parseMicroUSDC(amount).toString(),
+      payTo: platformWallet,
     });
+    return { status: '402', error: 'Payment processing unavailable: Circle nanopayments not configured', header: paymentHeader };
+  }
 
-    const txResponse = await (circleClient.createTransaction as any)({
-        walletId: viewerWalletId,
-        destinationAddress: platformWallet,
-        amount: [amount],
-        tokenAddress: '0x3600000000000000000000000000000000000000',
-        blockchain: 'ARC-TESTNET',
-        fee: { type: 'level', config: { feeLevel: 'LOW' } },
+  if (!platformWallet) {
+    const paymentHeader = buildPaymentRequiredHeader({
+      streamUrl: '/api/stream',
+      amountMicroUSDC: parseMicroUSDC(amount).toString(),
+      payTo: '',
     });
+    return { status: '402', error: 'Payment processing unavailable: no platform wallet configured', header: paymentHeader };
+  }
 
-    console.log('[PAY] Circle transaction created:', JSON.stringify(txResponse?.data));
+  await (getCircleClient().createTransaction as any)({ // eslint-disable-line @typescript-eslint/no-explicit-any
+    walletId: viewerWalletId,
+    destinationAddress: platformWallet,
+    amount: [amount],
+    tokenAddress: '0x3600000000000000000000000000000000000000',
+    blockchain: 'ARC-TESTNET',
+    fee: { type: 'level', config: { feeLevel: 'LOW' } },
+  });
+
+  return { status: 'paid' };
 }
 
 export async function POST(request: Request) {
-    try {
-        const { sessionId, viewerWalletId, amount } = await request.json();
+  try {
+    const { sessionId, viewerWalletId, amount } = await request.json();
 
-        if (!sessionId || !viewerWalletId || !amount) {
-            return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
-        }
-
-        if (!checkCap(viewerWalletId, amount)) {
-            console.log('[PAY] Spending cap exceeded for wallet', viewerWalletId, 'amount', amount);
-            const microUSDC = parseMicroUSDC(amount).toString();
-            const paymentHeader = buildPaymentRequiredHeader({
-                streamUrl: '/api/stream',
-                amountMicroUSDC: microUSDC,
-                payTo: getPlatformFeeAddress() ?? '',
-            });
-            return NextResponse.json(
-                { error: 'Spending cap exceeded' },
-                { status: 402, headers: { 'PAYMENT-REQUIRED': paymentHeader, 'X-X402-Required': 'true' } }
-            );
-        }
-
-        await executeSplitPayment({
-            viewerWalletId,
-            amount,
-        });
-
-        addSpend(viewerWalletId, amount);
-        recordPayment(amount);
-
-        paymentSessions.set(sessionId, Date.now());
-        saveSessions(paymentSessions);
-        notifyPayment(sessionId, { type: 'payment_confirmed', sessionExpiresAt: Date.now() + 20000 });
-        console.log('[PAY] Payment success for session', sessionId, 'wallet', viewerWalletId, 'amount', amount);
-        return NextResponse.json({ status: 'PAID', sessionExpiresAt: Date.now() + 20000 });
-    } catch (error: unknown) {
-        console.error('Pay route error:', error);
-        const message = error instanceof Error ? error.message : 'Payment processing failed';
-        const paymentHeader = buildPaymentRequiredHeader({
-            streamUrl: '/api/stream',
-            amountMicroUSDC: '500',
-            payTo: getPlatformFeeAddress() ?? '',
-        });
-        return NextResponse.json(
-            { error: message },
-            { status: 402, headers: { 'PAYMENT-REQUIRED': paymentHeader, 'X-X402-Required': 'true' } }
-        );
+    if (!sessionId || !viewerWalletId || !amount) {
+      return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
     }
+
+    if (!(await checkCap(viewerWalletId, amount))) {
+      const microUSDC = parseMicroUSDC(amount).toString();
+      const paymentHeader = buildPaymentRequiredHeader({
+        streamUrl: '/api/stream',
+        amountMicroUSDC: microUSDC,
+        payTo: await getPlatformFeeAddress(),
+      });
+      return NextResponse.json(
+        { error: 'Spending cap exceeded' },
+        { status: 402, headers: { 'PAYMENT-REQUIRED': paymentHeader, 'X-X402-Required': 'true' } }
+      );
+    }
+
+    const result = await executeSplitPayment({
+      viewerWalletId,
+      amount,
+    });
+
+    if (result.status === '402') {
+      return NextResponse.json(
+        { error: result.error },
+        { status: 402, headers: { 'PAYMENT-REQUIRED': result.header, 'X-X402-Required': 'true' } }
+      );
+    }
+
+    await addSpend(viewerWalletId, amount);
+    await recordPayment(amount);
+    await setSession(sessionId, Date.now());
+
+    return NextResponse.json({ status: 'PAID', sessionExpiresAt: Date.now() + 20000 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Payment processing failed';
+    const paymentHeader = buildPaymentRequiredHeader({
+      streamUrl: '/api/stream',
+      amountMicroUSDC: '500',
+      payTo: await getPlatformFeeAddress(),
+    });
+    return NextResponse.json(
+      { error: message },
+      { status: 402, headers: { 'PAYMENT-REQUIRED': paymentHeader, 'X-X402-Required': 'true' } }
+    );
+  }
 }

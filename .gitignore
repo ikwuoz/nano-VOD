@@ -30,8 +30,8 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (keep .env.local for optional local overrides)
-.env.local
+# env files
+.env
 
 # runtime state
 .sessions.json
