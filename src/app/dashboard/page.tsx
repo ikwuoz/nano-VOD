@@ -28,10 +28,12 @@ export default function DashboardPage() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-black text-white p-6">
-            <h1 className="text-2xl font-bold mb-6">Creator Dashboard</h1>
+        <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)', color: 'var(--text-primary)', padding: 'var(--space-6)', fontFamily: 'var(--font-sans)' }}>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', fontWeight: 'var(--weight-semibold)', letterSpacing: 'var(--tracking-tight)', marginBottom: 'var(--space-6)' }}>
+                Creator Dashboard
+            </h1>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4)', maxWidth: 760 }}>
                 <StatCard
                     label="Total Revenue"
                     value={metrics ? `${metrics.totalRevenue} USDC` : '—'}
@@ -49,7 +51,7 @@ export default function DashboardPage() {
                 />
             </div>
 
-            <p className="mt-8 text-xs text-zinc-600">
+            <p style={{ marginTop: 'var(--space-8)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-quaternary)' }}>
                 Total viewing sessions: {metrics?.totalSessions ?? '—'}
             </p>
         </div>
@@ -66,10 +68,22 @@ function StatCard({
     sub: string;
 }) {
     return (
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-            <p className="text-xs text-zinc-500 uppercase tracking-wider">{label}</p>
-            <p className="text-xl font-semibold mt-1 font-mono">{value}</p>
-            <p className="text-xs text-zinc-600 mt-1">{sub}</p>
+        <div style={{
+            background: 'var(--surface-1)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-lg)',
+            boxShadow: 'var(--elev-card)',
+            padding: 'var(--space-4)',
+        }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-caps)', marginBottom: 'var(--space-1)' }}>
+                {label}
+            </p>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xl)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)', marginTop: 'var(--space-1)', fontFeatureSettings: '"tnum" 1, "zero" 1' }}>
+                {value}
+            </p>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'var(--text-xs)', color: 'var(--text-quaternary)', marginTop: 'var(--space-1)' }}>
+                {sub}
+            </p>
         </div>
     );
 }

@@ -184,11 +184,18 @@ export default function WatchPortal({ params }: { params: Promise<{ id: string }
         )}
       </div>
 
-      <div className="mt-4 text-sm text-zinc-500">
-        Status: {isPlaying ? <span className="text-green-400">Streaming Micro-payments ($0.002 / min)</span> : "Paused"}
-      </div>
-    </div>
-  );
+            <div style={{ marginTop: 'var(--space-4)', fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)', color: 'var(--text-quaternary)' }}>
+                Status:{' '}
+                {isPlaying ? (
+                    <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-value)', fontFeatureSettings: '"tnum" 1' }}>
+                        Streaming Micro-payments ($0.002 / min)
+                    </span>
+                ) : (
+                    <span>Paused</span>
+                )}
+            </div>
+        </div>
+    );
 }
 
 function StreamErrorModal({ message, onCancel }: { message: string; onCancel: () => void }) {
