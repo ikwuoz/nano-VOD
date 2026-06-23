@@ -1,26 +1,397 @@
-@import "tailwindcss";
+/* =========================================================================
+   NanoVod — Global stylesheet
+   Entry point for the design system tokens. Fonts are loaded via <link>
+   in layout.tsx for Next.js-compatible delivery.
+   ========================================================================= */
 
+/* ── COLORS ────────────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* INK : cool near-blacks → near-white */
+  --ink-980: #06080d;
+  --ink-950: #080a11;
+  --ink-900: #0b0e16;
+  --ink-850: #0f131c;
+  --ink-800: #141823;
+  --ink-750: #191e2b;
+  --ink-700: #212838;
+  --ink-600: #2c3447;
+  --ink-500: #3d4659;
+  --ink-400: #5a6478;
+  --ink-300: #7c8698;
+  --ink-200: #a6aec0;
+  --ink-100: #cdd3e0;
+  --ink-50:  #e7eaf2;
+  --white:   #f4f6fb;
+
+  /* ARC CYAN */
+  --cyan-100: #cbf8fc;
+  --cyan-300: #7cebf4;
+  --cyan-400: #43deec;
+  --cyan-500: #1ed2e4;
+  --cyan-600: #11b0c3;
+  --cyan-700: #0c8a9a;
+
+  /* STREAM GREEN */
+  --green-300: #88f2c1;
+  --green-400: #4ee7a2;
+  --green-500: #25d886;
+  --green-600: #14b86e;
+
+  /* AMBER */
+  --amber-300: #ffd98a;
+  --amber-400: #ffc861;
+  --amber-500: #ffae2b;
+
+  /* RED */
+  --red-300: #ff9aa4;
+  --red-400: #ff7a86;
+  --red-500: #ff4d5e;
+  --red-600: #e5384a;
+
+  /* VIOLET */
+  --violet-400: #a99bff;
+  --violet-500: #8c7bf5;
+
+  /* SEMANTIC — surfaces */
+  --bg-canvas:      var(--ink-950);
+  --bg-base:        var(--ink-900);
+  --surface-1:      var(--ink-850);
+  --surface-2:      var(--ink-800);
+  --surface-3:      var(--ink-750);
+  --surface-hover:  var(--ink-700);
+  --surface-inset:  var(--ink-980);
+  --scrim:          rgba(6, 8, 13, 0.66);
+
+  /* Borders */
+  --border-subtle:  rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.1);
+  --border-strong:  rgba(255, 255, 255, 0.16);
+  --border-brand:   rgba(30, 210, 228, 0.55);
+  --border-value:   rgba(37, 216, 134, 0.5);
+
+  /* Text */
+  --text-primary:    var(--white);
+  --text-secondary:  var(--ink-200);
+  --text-tertiary:   var(--ink-300);
+  --text-quaternary: var(--ink-400);
+  --text-disabled:   var(--ink-500);
+  --text-inverse:    var(--ink-980);
+  --text-brand:      var(--cyan-400);
+  --text-value:      var(--green-400);
+
+  /* Brand */
+  --brand:             var(--cyan-500);
+  --brand-hover:       var(--cyan-400);
+  --brand-active:      var(--cyan-600);
+  --brand-subtle:      rgba(30, 210, 228, 0.12);
+  --brand-subtle-hover: rgba(30, 210, 228, 0.18);
+  --on-brand:          var(--ink-980);
+
+  /* Value */
+  --value:        var(--green-500);
+  --value-subtle: rgba(37, 216, 134, 0.12);
+  --on-value:     var(--ink-980);
+
+  /* Status */
+  --success:        var(--green-500);
+  --success-subtle: rgba(37, 216, 134, 0.12);
+  --warning:        var(--amber-500);
+  --warning-subtle: rgba(255, 174, 43, 0.12);
+  --danger:         var(--red-500);
+  --danger-hover:   var(--red-400);
+  --danger-subtle:  rgba(255, 77, 94, 0.12);
+  --info:           var(--violet-500);
+  --info-subtle:    rgba(140, 123, 245, 0.14);
+
+  /* Focus */
+  --focus-ring: rgba(30, 210, 228, 0.45);
+
+  /* Data viz */
+  --data-1: var(--cyan-500);
+  --data-2: var(--green-500);
+  --data-3: var(--violet-500);
+  --data-4: var(--amber-500);
+  --data-5: var(--red-500);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ── TYPOGRAPHY ─────────────────────────────────────────────────────────── */
+:root {
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --text-2xs: 11px;
+  --text-xs:  12px;
+  --text-sm:  13px;
+  --text-base: 15px;
+  --text-md:  16px;
+  --text-lg:  18px;
+  --text-xl:  21px;
+  --text-2xl: 25px;
+  --text-3xl: 31px;
+  --text-4xl: 39px;
+  --text-5xl: 49px;
+  --text-6xl: 62px;
+  --text-7xl: 78px;
+  --text-8xl: 98px;
+
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  --leading-none:    1;
+  --leading-tight:   1.12;
+  --leading-snug:    1.28;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.65;
+
+  --tracking-tighter: -0.03em;
+  --tracking-tight:   -0.018em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.02em;
+  --tracking-wider:   0.06em;
+  --tracking-caps:    0.12em;
+
+  --display-hero: var(--weight-bold) var(--text-7xl)/var(--leading-none) var(--font-display);
+  --display-1:    var(--weight-bold) var(--text-5xl)/var(--leading-tight) var(--font-display);
+  --display-2:    var(--weight-semibold) var(--text-4xl)/var(--leading-tight) var(--font-display);
+  --heading-1:    var(--weight-semibold) var(--text-3xl)/var(--leading-snug) var(--font-display);
+  --heading-2:    var(--weight-semibold) var(--text-2xl)/var(--leading-snug) var(--font-display);
+  --heading-3:    var(--weight-semibold) var(--text-xl)/var(--leading-snug) var(--font-display);
+  --title:        var(--weight-semibold) var(--text-md)/var(--leading-snug) var(--font-sans);
+  --body-lg:      var(--weight-regular) var(--text-lg)/var(--leading-relaxed) var(--font-sans);
+  --body:         var(--weight-regular) var(--text-base)/var(--leading-normal) var(--font-sans);
+  --body-sm:      var(--weight-regular) var(--text-sm)/var(--leading-normal) var(--font-sans);
+  --label:        var(--weight-medium) var(--text-sm)/var(--leading-snug) var(--font-sans);
+  --caption:      var(--weight-regular) var(--text-xs)/var(--leading-snug) var(--font-sans);
+
+  --mono-figure-xl: var(--weight-medium) var(--text-5xl)/var(--leading-none) var(--font-mono);
+  --mono-figure:    var(--weight-medium) var(--text-2xl)/var(--leading-tight) var(--font-mono);
+  --mono-data:      var(--weight-regular) var(--text-sm)/var(--leading-snug) var(--font-mono);
+  --mono-code:      var(--weight-regular) var(--text-xs)/var(--leading-normal) var(--font-mono);
+  --eyebrow:        var(--weight-medium) var(--text-xs)/var(--leading-snug) var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.tnum {
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+/* ── SPACING & LAYOUT ───────────────────────────────────────────────────── */
+:root {
+  --space-0:   0;
+  --space-px:  1px;
+  --space-0-5: 2px;
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-7:   28px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+  --space-14:  56px;
+  --space-16:  64px;
+  --space-20:  80px;
+  --space-24:  96px;
+  --space-32:  128px;
+  --space-40:  160px;
+
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-2xl:  28px;
+  --radius-full: 999px;
+
+  --border-width:       1px;
+  --border-width-thick: 1.5px;
+
+  --container-sm:  640px;
+  --container-md:  840px;
+  --container-lg:  1080px;
+  --container-xl:  1280px;
+  --container-2xl: 1480px;
+
+  --sidebar-width:  248px;
+  --topbar-height:  60px;
+  --gutter:         var(--space-6);
+  --gutter-page:    var(--space-8);
+}
+
+/* ── EFFECTS ────────────────────────────────────────────────────────────── */
+:root {
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 10px 28px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.58);
+  --shadow-xl: 0 40px 96px rgba(0, 0, 0, 0.66);
+
+  --edge-top:      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --edge-top-soft: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  --elev-card:    var(--edge-top), var(--shadow-sm);
+  --elev-panel:   var(--edge-top), var(--shadow-md);
+  --elev-popover: var(--edge-top), var(--shadow-lg);
+  --elev-modal:   var(--edge-top), var(--shadow-xl);
+
+  --glow-cyan-sm: 0 0 14px rgba(30, 210, 228, 0.35);
+  --glow-cyan:    0 0 28px rgba(30, 210, 228, 0.45);
+  --glow-cyan-lg: 0 0 56px rgba(30, 210, 228, 0.4);
+  --glow-green:   0 0 22px rgba(37, 216, 134, 0.42);
+  --glow-red:     0 0 22px rgba(255, 77, 94, 0.42);
+
+  --ring: 0 0 0 3px var(--focus-ring);
+
+  --blur-sm:    blur(8px);
+  --blur-panel: blur(16px) saturate(1.2);
+  --blur-scrim: blur(24px) saturate(1.1);
+
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast:    120ms;
+  --dur-base:    200ms;
+  --dur-slow:    360ms;
+  --dur-pulse:   2400ms;
+
+  --grid-dot:  radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1.4px);
+  --grid-line: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+               linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  --grid-size: 24px;
+
+  --hero-glow: radial-gradient(60% 80% at 50% -10%, rgba(30, 210, 228, 0.16), transparent 70%);
+}
+
+/* ── BASE RESET ─────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font: var(--body);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(30, 210, 228, 0.28);
+  color: var(--white);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+a {
+  color: var(--text-brand);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--cyan-300);
+}
+
+code, kbd, samp {
+  font-family: var(--font-mono);
+}
+
+/* Dark scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-600) transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb {
+  background: var(--ink-600);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--ink-500); }
+
+/* ── UTILITY BACKGROUNDS ─────────────────────────────────────────────────── */
+.nano-vod-grid-dots {
+  background-image: var(--grid-dot);
+  background-size: var(--grid-size) var(--grid-size);
+}
+.nano-vod-grid-lines {
+  background-image: var(--grid-line);
+  background-size: var(--grid-size) var(--grid-size);
+}
+.nano-vod-hero-glow {
+  background-image: var(--hero-glow);
+}
+
+.nano-vod-figure {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum" 1, "zero" 1;
+  letter-spacing: var(--tracking-tight);
+}
+
+.nano-vod-eyebrow {
+  font: var(--eyebrow);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--text-brand);
+}
+
+/* ── KEYFRAMES ──────────────────────────────────────────────────────────── */
+@keyframes nano-vod-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes nano-vod-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.42; transform: scale(0.66); }
+}
+@keyframes nano-vod-flow {
+  from { background-position: 0 0; }
+  to   { background-position: -200% 0; }
+}
+@keyframes nano-vod-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes nano-vod-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.nano-vod-spin {
+  animation: nano-vod-spin 0.7s linear infinite;
+}
+.nano-vod-pulse {
+  animation: nano-vod-pulse var(--dur-pulse) var(--ease-in-out) infinite;
+}
+.nano-vod-flow {
+  background-size: 200% 100% !important;
+  animation: nano-vod-flow 2.4s linear infinite;
+}
+.nano-vod-rise {
+  animation: nano-vod-rise var(--dur-slow) var(--ease-out) both;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

@@ -86,46 +86,91 @@ export default function HomeCatalog() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50 font-sans">
+    <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)', color: 'var(--text-primary)', fontFamily: 'var(--font-sans)' }}>
 
-      <nav className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-8 py-3.5">
+      {/* Nav */}
+      <nav style={{
+        position: 'sticky', top: 0, zIndex: 50,
+        background: 'rgba(8, 10, 17, 0.8)',
+        backdropFilter: 'var(--blur-panel)',
+        WebkitBackdropFilter: 'var(--blur-panel)',
+        borderBottom: '1px solid var(--border-subtle)',
+      }}>
+        <div style={{ maxWidth: 'var(--container-2xl)', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 var(--gutter-page)', height: 'var(--topbar-height)' }}>
 
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-100 font-bold text-sm">
-              A
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+            {/* Logo mark — using DS brand SVG */}
+            <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="NanoVod" role="img">
+              <defs>
+                <linearGradient id="nv-mark-nav" x1="20" y1="6" x2="20" y2="34" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#7CEBF4" /><stop offset="1" stopColor="#11B0C3" />
+                </linearGradient>
+              </defs>
+              <path d="M30.24 11.99 A13 13 0 1 0 30.24 28.01" stroke="url(#nv-mark-nav)" strokeWidth="3.6" strokeLinecap="round" />
+              <circle cx="30.24" cy="11.99" r="2.6" fill="#7CEBF4" />
+              <circle cx="30.24" cy="28.01" r="2.6" fill="#1ED2E4" />
+            </svg>
             <div>
-              <h1 className="text-base font-semibold text-zinc-100 leading-tight">nano VOD</h1>
-              <p className="text-[10px] text-zinc-500 leading-tight">Metered streaming for Jellyfin</p>
+              <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--weight-semibold)', fontSize: 'var(--text-md)', color: 'var(--text-primary)', letterSpacing: 'var(--tracking-tight)', lineHeight: 1, margin: 0 }}>
+                nano VOD
+              </h1>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-quaternary)', lineHeight: 1, marginTop: 2, textTransform: 'uppercase', letterSpacing: 'var(--tracking-caps)' }}>
+                Metered streaming for Jellyfin
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
             {!testWallet ? (
               <button
                 onClick={bootstrapUserWallet}
                 disabled={isProvisioning}
-                className="text-sm font-medium bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-1.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)',
+                  background: isProvisioning ? 'var(--brand-active)' : 'var(--brand)',
+                  color: 'var(--on-brand)',
+                  padding: '0 var(--space-4)', height: 34,
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid transparent',
+                  cursor: isProvisioning ? 'not-allowed' : 'pointer',
+                  opacity: isProvisioning ? 0.7 : 1,
+                  transition: 'background var(--dur-fast) var(--ease-out)',
+                  display: 'inline-flex', alignItems: 'center',
+                }}
               >
                 {isProvisioning ? 'Initializing…' : 'Setup Sandbox'}
               </button>
             ) : (
-              <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                <span className="text-xs font-mono text-zinc-400">
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 'var(--space-2)',
+                background: 'var(--surface-2)',
+                border: '1px solid var(--border-brand)',
+                borderRadius: 'var(--radius-md)',
+                padding: '0 var(--space-3)', height: 34,
+              }}>
+                <span className="nano-vod-pulse" style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--value)', flex: 'none' }} />
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)' }}>
                   {testWallet.address.slice(0, 6)}&hellip;{testWallet.address.slice(-4)}
                 </span>
-                <span className="text-xs font-medium text-zinc-100">{testWallet.balance} USDC</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-value)', fontFeatureSettings: '"tnum" 1' }}>
+                  {testWallet.balance} USDC
+                </span>
               </div>
             )}
 
-            <div className="relative">
+            <div style={{ position: 'relative' }}>
               <button
                 onClick={() => setShowMenu((v) => !v)}
-                className="p-2 text-zinc-500 hover:text-zinc-300 transition-colors rounded-lg hover:bg-zinc-800"
+                style={{
+                  width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: showMenu ? 'var(--surface-2)' : 'transparent',
+                  border: '1px solid ' + (showMenu ? 'var(--border-default)' : 'transparent'),
+                  borderRadius: 'var(--radius-md)',
+                  color: 'var(--text-tertiary)', cursor: 'pointer',
+                  transition: 'background var(--dur-fast), color var(--dur-fast)',
+                }}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="3" />
                   <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
                 </svg>
@@ -133,18 +178,34 @@ export default function HomeCatalog() {
 
               {showMenu && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-                  <div className="absolute right-0 top-full mt-1 z-50 bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl py-1 min-w-[160px]">
+                  <div style={{ position: 'fixed', inset: 0, zIndex: 40 }} onClick={() => setShowMenu(false)} />
+                  <div style={{
+                    position: 'absolute', right: 0, top: 'calc(100% + 6px)', zIndex: 50,
+                    background: 'var(--surface-2)',
+                    border: '1px solid var(--border-default)',
+                    borderRadius: 'var(--radius-lg)',
+                    boxShadow: 'var(--elev-popover)',
+                    padding: 'var(--space-1)',
+                    minWidth: 160,
+                  }}>
                     <Link
                       href="/dashboard"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-300 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 'var(--space-2)',
+                        padding: 'var(--space-2) var(--space-3)',
+                        borderRadius: 'var(--radius-sm)',
+                        fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)',
+                        color: 'var(--text-secondary)',
+                        textDecoration: 'none',
+                        transition: 'background var(--dur-fast), color var(--dur-fast)',
+                      }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--surface-hover)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)'; }}
                       onClick={() => setShowMenu(false)}
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="3" width="7" height="7" />
-                        <rect x="14" y="3" width="7" height="7" />
-                        <rect x="3" y="14" width="7" height="7" />
-                        <rect x="14" y="14" width="7" height="7" />
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
+                        <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
                       </svg>
                       Dashboard
                     </Link>
@@ -156,54 +217,103 @@ export default function HomeCatalog() {
         </div>
       </nav>
 
-      <div className="p-8">
-        <main className="max-w-6xl mx-auto">
-          <h2 className="text-lg font-bold mb-6 text-zinc-300 tracking-wide uppercase">Available Premium In-Network Libraries</h2>
+      {/* Catalog */}
+      <div style={{ padding: 'var(--space-8) var(--gutter-page)' }}>
+        <main style={{ maxWidth: 'var(--container-xl)', margin: '0 auto' }}>
+          <h2 style={{
+            fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)',
+            color: 'var(--text-tertiary)', letterSpacing: 'var(--tracking-caps)', textTransform: 'uppercase',
+            marginBottom: 'var(--space-6)',
+          }}>
+            Available Premium In-Network Libraries
+          </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(460px, 1fr))', gap: 'var(--space-8)' }}>
             {FILM_CATALOG.map((film) => (
-              <div
-                key={film.id}
-                className="group bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl transition-all duration-200 hover:border-zinc-700 hover:scale-[1.01]"
-              >
-                <div className="relative aspect-video w-full bg-zinc-800 overflow-hidden">
-                  <Image
-                    src={film.thumbnail}
-                    alt={film.title}
-                    fill
-                    loading="eager"
-                    className="object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-200"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                  <span className="absolute top-3 right-3 bg-black/80 backdrop-blur-md text-[11px] font-bold text-teal-400 px-2.5 py-1 rounded-full border border-teal-500/20">
-                    ${parseFloat(film.ratePerMin)} USDC / min
-                  </span>
-                </div>
-
-                <div className="p-6">
-                  <div className="flex items-center gap-2 text-xs text-zinc-500 mb-1">
-                    <span>{film.genre}</span>
-                    <span>&bull;</span>
-                    <span>{film.duration}</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-zinc-100 group-hover:text-white transition-colors">
-                    {film.title}
-                  </h3>
-                  <p className="text-xs text-zinc-400 mt-1 mb-6">
-                    Published by <span className="text-zinc-300 font-medium">{film.creator}</span>
-                  </p>
-
-                  <Link
-                    href={`/watch/${film.id}`}
-                    className="inline-flex w-full items-center justify-center font-medium text-sm bg-zinc-800 hover:bg-zinc-700 text-zinc-100 py-2.5 px-4 rounded-lg border border-zinc-700 transition-all"
-                  >
-                    Enter Secured Metered Stream &rarr;
-                  </Link>
-                </div>
-              </div>
+              <FilmCard key={film.id} film={film} />
             ))}
           </div>
         </main>
+      </div>
+    </div>
+  );
+}
+
+function FilmCard({ film }: { film: typeof FILM_CATALOG[0] }) {
+  const [hover, setHover] = useState(false);
+
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        background: 'var(--surface-1)',
+        border: '1px solid ' + (hover ? 'var(--border-brand)' : 'var(--border-subtle)'),
+        borderRadius: 'var(--radius-lg)',
+        overflow: 'hidden',
+        boxShadow: hover ? 'var(--elev-panel), var(--glow-cyan-sm)' : 'var(--elev-card)',
+        transform: hover ? 'translateY(-2px) scale(1.005)' : 'none',
+        transition: 'transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base), border-color var(--dur-base)',
+      }}
+    >
+      <div style={{ position: 'relative', aspectRatio: '16/9', background: 'var(--surface-inset)', overflow: 'hidden' }}>
+        <Image
+          src={film.thumbnail}
+          alt={film.title}
+          fill
+          loading="eager"
+          style={{ objectFit: 'cover', opacity: hover ? 1 : 0.8, transition: 'opacity var(--dur-base)' }}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+        <span style={{
+          position: 'absolute', top: 12, right: 12,
+          display: 'inline-flex', alignItems: 'center',
+          background: 'rgba(6,8,13,0.8)',
+          backdropFilter: 'var(--blur-sm)',
+          WebkitBackdropFilter: 'var(--blur-sm)',
+          fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 'var(--weight-medium)',
+          color: 'var(--text-brand)',
+          padding: '0 10px', height: 24,
+          borderRadius: 'var(--radius-full)',
+          border: '1px solid rgba(30,210,228,0.25)',
+          fontFeatureSettings: '"tnum" 1',
+        }}>
+          ${parseFloat(film.ratePerMin)} USDC / min
+        </span>
+      </div>
+
+      <div style={{ padding: 'var(--space-6)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', fontFamily: 'var(--font-sans)', fontSize: 'var(--text-xs)', color: 'var(--text-quaternary)', marginBottom: 'var(--space-1)' }}>
+          <span>{film.genre}</span>
+          <span>&bull;</span>
+          <span>{film.duration}</span>
+        </div>
+        <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)', letterSpacing: 'var(--tracking-tight)', transition: 'color var(--dur-fast)', margin: 0 }}>
+          {film.title}
+        </h3>
+        <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'var(--text-xs)', color: 'var(--text-quaternary)', marginTop: 'var(--space-1)', marginBottom: 'var(--space-6)' }}>
+          Published by <span style={{ color: 'var(--text-secondary)', fontWeight: 'var(--weight-medium)' }}>{film.creator}</span>
+        </p>
+
+        <Link
+          href={`/watch/${film.id}`}
+          style={{
+            display: 'inline-flex', width: '100%', alignItems: 'center', justifyContent: 'center',
+            fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)',
+            background: 'var(--surface-2)',
+            color: 'var(--text-primary)',
+            height: 40,
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border-default)',
+            textDecoration: 'none',
+            transition: 'background var(--dur-fast), border-color var(--dur-fast)',
+            boxShadow: 'var(--edge-top)',
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--surface-hover)'; (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--surface-2)'; (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)'; }}
+        >
+          Enter Secured Metered Stream &rarr;
+        </Link>
       </div>
     </div>
   );

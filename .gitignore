@@ -52,3 +52,5 @@ media/*
 recovery/*
 recovery-entity-secret.ts
 register-entity-secret.ts
+
+arc-stream-design-system

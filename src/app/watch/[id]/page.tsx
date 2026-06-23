@@ -152,35 +152,75 @@ export default function WatchPortal({ params }: { params: Promise<{ id: string }
     }, [isPlaying, paymentError, sessionId]);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-6">
-            <h1 className="text-2xl font-bold mb-4">nano VOD Portal</h1>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-canvas)', color: 'var(--text-primary)', padding: 'var(--space-6)', fontFamily: 'var(--font-sans)' }}>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', fontWeight: 'var(--weight-semibold)', letterSpacing: 'var(--tracking-tight)', marginBottom: 'var(--space-4)' }}>
+                nano VOD Portal
+            </h1>
 
-            <div className="relative w-full max-w-4xl aspect-video bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800">
+            <div style={{
+                position: 'relative', width: '100%', maxWidth: 896, aspectRatio: '16/9',
+                background: 'var(--surface-inset)',
+                borderRadius: 'var(--radius-lg)',
+                overflow: 'hidden',
+                border: paymentError
+                    ? '1px solid rgba(255,77,94,0.45)'
+                    : leaseReady
+                        ? '1px solid var(--border-brand)'
+                        : '1px solid var(--border-subtle)',
+                boxShadow: paymentError
+                    ? 'var(--elev-panel), var(--glow-red)'
+                    : leaseReady
+                        ? 'var(--elev-panel), var(--glow-cyan-sm)'
+                        : 'var(--elev-panel)',
+                transition: 'border-color var(--dur-slow), box-shadow var(--dur-slow)',
+            }}>
                 {paymentError && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-10 p-4 text-center">
-                        <p className="text-red-500 font-semibold text-lg">⚠️ HTTP 402: Payment Required</p>
-                        <p className="text-gray-400 text-sm mt-1">Your viewer agent wallet balance is empty or processing has timed out.</p>
+                    <div style={{
+                        position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
+                        alignItems: 'center', justifyContent: 'center',
+                        background: 'rgba(6,8,13,0.9)',
+                        backdropFilter: 'var(--blur-panel)',
+                        WebkitBackdropFilter: 'var(--blur-panel)',
+                        zIndex: 10, padding: 'var(--space-4)', textAlign: 'center',
+                    }}>
+                        <p style={{ fontFamily: 'var(--font-mono)', fontWeight: 'var(--weight-semibold)', fontSize: 'var(--text-lg)', color: 'var(--red-400)', marginBottom: 'var(--space-2)' }}>
+                            HTTP 402: Payment Required
+                        </p>
+                        <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)', color: 'var(--text-tertiary)' }}>
+                            Your viewer agent wallet balance is empty or processing has timed out.
+                        </p>
                     </div>
                 )}
 
                 {tokenError ? (
-                    <div className="flex flex-col items-center justify-center h-full text-zinc-500 p-4 text-center">
-                        <p className="text-red-400 font-semibold">Failed to initialize viewing session</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', padding: 'var(--space-4)', textAlign: 'center' }}>
+                        <p style={{ fontFamily: 'var(--font-sans)', fontWeight: 'var(--weight-semibold)', color: 'var(--red-400)', marginBottom: 'var(--space-3)' }}>
+                            Failed to initialize viewing session
+                        </p>
                         <button
                             onClick={() => window.location.reload()}
-                            className="mt-3 text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-100 py-2 px-4 rounded-lg border border-zinc-700 transition-all"
+                            style={{
+                                fontFamily: 'var(--font-sans)', fontSize: 'var(--text-xs)', fontWeight: 'var(--weight-semibold)',
+                                background: 'var(--surface-2)', color: 'var(--text-primary)',
+                                padding: '0 var(--space-4)', height: 34,
+                                borderRadius: 'var(--radius-md)',
+                                border: '1px solid var(--border-default)',
+                                cursor: 'pointer',
+                                transition: 'background var(--dur-fast), border-color var(--dur-fast)',
+                                boxShadow: 'var(--edge-top)',
+                            }}
                         >
                             Retry
                         </button>
                     </div>
                 ) : !sessionId || !leaseReady ? (
-                    <div className="flex items-center justify-center h-full text-zinc-500">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', color: 'var(--text-quaternary)' }}>
                         {sessionId ? 'Establishing payment lease...' : 'Initializing viewing session...'}
                     </div>
                 ) : (
                     <video
                         ref={videoRef}
-                        className="w-full h-full"
+                        style={{ width: '100%', height: '100%', display: 'block' }}
                         controls
                         onPlay={() => setIsPlaying(true)}
                         onPause={() => setIsPlaying(false)}
@@ -189,8 +229,15 @@ export default function WatchPortal({ params }: { params: Promise<{ id: string }
                 )}
             </div>
 
-            <div className="mt-4 text-sm text-zinc-500">
-                Status: {isPlaying ? <span className="text-green-400">Streaming Micro-payments ($0.002 / min)</span> : "Paused"}
+            <div style={{ marginTop: 'var(--space-4)', fontFamily: 'var(--font-sans)', fontSize: 'var(--text-sm)', color: 'var(--text-quaternary)' }}>
+                Status:{' '}
+                {isPlaying ? (
+                    <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-value)', fontFeatureSettings: '"tnum" 1' }}>
+                        Streaming Micro-payments ($0.002 / min)
+                    </span>
+                ) : (
+                    <span>Paused</span>
+                )}
             </div>
         </div>
     );
