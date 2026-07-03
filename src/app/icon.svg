@@ -1,0 +1,11 @@
+<svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="nv-icon" x1="20" y1="6" x2="20" y2="34" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7CEBF4" />
+      <stop offset="1" stop-color="#11B0C3" />
+    </linearGradient>
+  </defs>
+  <path d="M30.24 11.99 A13 13 0 1 0 30.24 28.01" stroke="url(#nv-icon)" stroke-width="3.6" stroke-linecap="round" />
+  <circle cx="30.24" cy="11.99" r="2.6" fill="#7CEBF4" />
+  <circle cx="30.24" cy="28.01" r="2.6" fill="#1ED2E4" />
+</svg>
