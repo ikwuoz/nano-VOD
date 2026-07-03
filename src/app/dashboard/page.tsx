@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { Card } from '@/components/ui';
 
 type Metrics = {
     totalPayments: number;
@@ -29,61 +30,51 @@ export default function DashboardPage() {
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)', color: 'var(--text-primary)', padding: 'var(--space-6)', fontFamily: 'var(--font-sans)' }}>
-            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', fontWeight: 'var(--weight-semibold)', letterSpacing: 'var(--tracking-tight)', marginBottom: 'var(--space-6)' }}>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', fontWeight: 600, letterSpacing: 'var(--tracking-tight)', marginBottom: 'var(--space-6)' }}>
                 Creator Dashboard
             </h1>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4)', maxWidth: 760 }}>
-                <StatCard
-                    label="Total Revenue"
-                    value={metrics ? `${metrics.totalRevenue} USDC` : '—'}
-                    sub="Streaming earnings"
-                />
-                <StatCard
-                    label="Transactions"
-                    value={metrics ? String(metrics.totalPayments) : '—'}
-                    sub="Micro-payments processed"
-                />
-                <StatCard
-                    label="Runtime Watched"
-                    value={metrics ? `${metrics.totalRuntimeMin} min` : '—'}
-                    sub="Total playback time"
-                />
+                <Card padding="sm">
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-caps)', marginBottom: 'var(--space-1)' }}>
+                        Total Revenue
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', marginTop: 'var(--space-1)', fontFeatureSettings: '"tnum" 1, "zero" 1' }}>
+                        {metrics ? `${metrics.totalRevenue} USDC` : '\u2014'}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: 'var(--text-xs)', color: 'var(--text-quaternary)', marginTop: 'var(--space-1)' }}>
+                        Streaming earnings
+                    </div>
+                </Card>
+
+                <Card padding="sm">
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-caps)', marginBottom: 'var(--space-1)' }}>
+                        Transactions
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', marginTop: 'var(--space-1)', fontFeatureSettings: '"tnum" 1, "zero" 1' }}>
+                        {metrics ? String(metrics.totalPayments) : '\u2014'}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: 'var(--text-xs)', color: 'var(--text-quaternary)', marginTop: 'var(--space-1)' }}>
+                        Micro-payments processed
+                    </div>
+                </Card>
+
+                <Card padding="sm">
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-caps)', marginBottom: 'var(--space-1)' }}>
+                        Runtime Watched
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', marginTop: 'var(--space-1)', fontFeatureSettings: '"tnum" 1, "zero" 1' }}>
+                        {metrics ? `${metrics.totalRuntimeMin} min` : '\u2014'}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: 'var(--text-xs)', color: 'var(--text-quaternary)', marginTop: 'var(--space-1)' }}>
+                        Total playback time
+                    </div>
+                </Card>
             </div>
 
-            <p style={{ marginTop: 'var(--space-8)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-quaternary)' }}>
-                Total viewing sessions: {metrics?.totalSessions ?? '—'}
-            </p>
-        </div>
-    );
-}
-
-function StatCard({
-    label,
-    value,
-    sub,
-}: {
-    label: string;
-    value: string;
-    sub: string;
-}) {
-    return (
-        <div style={{
-            background: 'var(--surface-1)',
-            border: '1px solid var(--border-subtle)',
-            borderRadius: 'var(--radius-lg)',
-            boxShadow: 'var(--elev-card)',
-            padding: 'var(--space-4)',
-        }}>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: 'var(--tracking-caps)', marginBottom: 'var(--space-1)' }}>
-                {label}
-            </p>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xl)', fontWeight: 'var(--weight-semibold)', color: 'var(--text-primary)', marginTop: 'var(--space-1)', fontFeatureSettings: '"tnum" 1, "zero" 1' }}>
-                {value}
-            </p>
-            <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'var(--text-xs)', color: 'var(--text-quaternary)', marginTop: 'var(--space-1)' }}>
-                {sub}
-            </p>
+            <div style={{ marginTop: 'var(--space-8)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-quaternary)' }}>
+                Total viewing sessions: {metrics?.totalSessions ?? '\u2014'}
+            </div>
         </div>
     );
 }
