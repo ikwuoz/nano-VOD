@@ -6,6 +6,12 @@ Built for the **Lepton Agents Hackathon**, this project solves **RFB 06: Creator
 
 ---
 
+## 🌐 Live Demo
+
+**[https://nano-vod.vercel.app/](https://nano-vod.vercel.app/)**
+
+---
+
 ## 🚀 The Core Thesis: "Payment is the Authentication"
 
 Traditional paywalls require heavy login flows, credit card processing, and fixed monthly commitments. **Arc Stream VOD** implements the HTTP `402 Payment Required` standard via an autonomous agent wrapper. 
