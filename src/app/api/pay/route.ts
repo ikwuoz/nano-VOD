@@ -3,7 +3,7 @@ import { getCircleClient } from '@/lib/circle';
 import { getPlatformFeeAddress } from '../wallet/provision/route';
 import { parseMicroUSDC } from '@/lib/usdc-math';
 import { checkCap, addSpend } from '@/lib/spending-cap';
-import { recordPayment } from '@/lib/metrics';
+import { recordPayment, recordError, recordLatency, recordHeartbeat, recordFilmPayment } from '@/lib/metrics';
 import { buildPaymentRequiredHeader } from '@/lib/x402';
 import { setSession } from '@/lib/session-store';
 
@@ -45,8 +45,9 @@ async function executeSplitPayment(params: {
 }
 
 export async function POST(request: Request) {
+  const start = Date.now();
   try {
-    const { sessionId, viewerWalletId, amount } = await request.json();
+    const { sessionId, viewerWalletId, amount, filmId } = await request.json();
 
     if (!sessionId || !viewerWalletId || !amount) {
       return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
@@ -59,6 +60,7 @@ export async function POST(request: Request) {
         amountMicroUSDC: microUSDC,
         payTo: await getPlatformFeeAddress(),
       });
+      recordError('402_cap_exceeded').catch(() => {});
       return NextResponse.json(
         { error: 'Spending cap exceeded' },
         { status: 402, headers: { 'PAYMENT-REQUIRED': paymentHeader, 'X-X402-Required': 'true' } }
@@ -71,6 +73,7 @@ export async function POST(request: Request) {
     });
 
     if (result.status === '402') {
+      recordError('402_payment_failed').catch(() => {});
       return NextResponse.json(
         { error: result.error },
         { status: 402, headers: { 'PAYMENT-REQUIRED': result.header, 'X-X402-Required': 'true' } }
@@ -80,9 +83,14 @@ export async function POST(request: Request) {
     await addSpend(viewerWalletId, amount);
     await recordPayment(amount);
     await setSession(sessionId, Date.now());
+    recordHeartbeat().catch(() => {});
+    if (filmId) recordFilmPayment(filmId, amount).catch(() => {});
 
+    recordLatency('pay', Date.now() - start).catch(() => {});
     return NextResponse.json({ status: 'PAID', sessionExpiresAt: Date.now() + 20000 });
   } catch (error: unknown) {
+    recordError('402_other').catch(() => {});
+    recordLatency('pay', Date.now() - start).catch(() => {});
     const message = error instanceof Error ? error.message : 'Payment processing failed';
     const paymentHeader = buildPaymentRequiredHeader({
       streamUrl: '/api/stream',

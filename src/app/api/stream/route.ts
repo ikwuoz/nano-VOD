@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/session-store';
 import { buildPaymentRequiredHeader } from '@/lib/x402';
 import { getPlatformFeeAddress } from '../wallet/provision/route';
+import { recordError, recordLatency, recordStreamSource } from '@/lib/metrics';
 
 const DEMO_VIDEO_URLS: Record<string, string> = {
   'big-buck-bunny': 'https://remotion.media/BigBuckBunny.mp4',
@@ -28,6 +29,7 @@ async function proxyVideo(videoUrl: string, rangeHeader: string | null) {
 }
 
 export async function GET(request: Request) {
+  const start = Date.now();
   try {
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get('sessionId');
@@ -41,6 +43,7 @@ export async function GET(request: Request) {
     const paymentWindowGracePeriod = 20 * 1000;
 
     if (!lastPaidTimestamp || (Date.now() - lastPaidTimestamp) > paymentWindowGracePeriod) {
+      recordError('402_lease_expired').catch(() => {});
       const payTo = await getPlatformFeeAddress();
       const paymentHeader = buildPaymentRequiredHeader({
         streamUrl: request.url,
@@ -70,6 +73,8 @@ export async function GET(request: Request) {
           );
           clearTimeout(timeout);
           if (jellyfinResponse.ok) {
+            recordStreamSource('jellyfin').catch(() => {});
+            recordLatency('stream', Date.now() - start).catch(() => {});
             return new NextResponse(jellyfinResponse.body, {
               status: jellyfinResponse.status,
               headers: {
@@ -86,14 +91,23 @@ export async function GET(request: Request) {
         }
       }
       try {
-        return await proxyVideo(demoUrl, rangeHeader);
+        const result = await proxyVideo(demoUrl, rangeHeader);
+        recordStreamSource('demo').catch(() => {});
+        recordLatency('stream', Date.now() - start).catch(() => {});
+        return result;
       } catch {
+        recordError('stream_fail').catch(() => {});
+        recordLatency('stream', Date.now() - start).catch(() => {});
         return new NextResponse(null, { status: 503, headers: { 'X-Stream-Error': 'proxy-unavailable' } });
       }
     }
 
+    recordError('stream_fail').catch(() => {});
+    recordLatency('stream', Date.now() - start).catch(() => {});
     return NextResponse.json({ error: 'Video source unavailable' }, { status: 502 });
   } catch {
+    recordError('server_error').catch(() => {});
+    recordLatency('stream', Date.now() - start).catch(() => {});
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

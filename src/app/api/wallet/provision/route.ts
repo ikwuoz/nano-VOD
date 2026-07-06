@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { provisionArcAgentWallet, getWalletUsdcBalance } from '@/lib/circle';
 import { setSpendingCap } from '@/lib/spending-cap';
 import { loadWalletStore, saveWalletStore } from '@/lib/wallet-store';
+import { recordError } from '@/lib/metrics';
 
 const SPENDING_CAP = '1.00';
 
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   } catch (error: unknown) {
+    recordError('wallet_fail').catch(() => {});
     const message = error instanceof Error ? error.message : 'Wallet provisioning failed';
     return NextResponse.json({ error: message }, { status: 500 });
   }

@@ -27,6 +27,11 @@ export default function WatchPortal({ params }: { params: Promise<{ id: string }
   const handlePaymentBlock = () => {
     setPaymentError(true);
     videoRef.current?.pause();
+    try { navigator.sendBeacon('/api/analytics/event', new Blob([JSON.stringify({ event: 'client_402' })], { type: 'application/json' })); } catch {}
+  };
+
+  const sendEvent = (event: string) => {
+    try { navigator.sendBeacon('/api/analytics/event', new Blob([JSON.stringify({ event })], { type: 'application/json' })); } catch {}
   };
 
   const handleMouseMove = () => {
@@ -68,13 +73,13 @@ export default function WatchPortal({ params }: { params: Promise<{ id: string }
             sessionStorage.setItem('creatorWalletAddress', data.platformFeeAddress);
           }
         } catch {
-          if (!cancelled) setTokenError(true);
+          if (!cancelled) { setTokenError(true); sendEvent('client_token_error'); }
           return;
         }
       }
 
       if (!wId || !cAddr) {
-        if (!cancelled) setTokenError(true);
+        if (!cancelled) { setTokenError(true); sendEvent('client_token_error'); }
         return;
       }
 
@@ -84,7 +89,7 @@ export default function WatchPortal({ params }: { params: Promise<{ id: string }
         body: JSON.stringify({ viewerWalletId: wId, creatorWalletAddress: cAddr }),
       });
       if (!tokenRes.ok) {
-        if (!cancelled) setTokenError(true);
+        if (!cancelled) { setTokenError(true); sendEvent('client_token_error'); }
         return;
       }
       const tokenData = await tokenRes.json();
@@ -98,6 +103,7 @@ export default function WatchPortal({ params }: { params: Promise<{ id: string }
           sessionId: tokenData.sessionId,
           viewerWalletId: wId,
           amount: '0.000500',
+          filmId: id,
         }),
       });
       if (cancelled) return;
@@ -112,10 +118,12 @@ export default function WatchPortal({ params }: { params: Promise<{ id: string }
         const checkRes = await fetch(url, { headers: { 'Range': 'bytes=0-0' } });
         if (checkRes.status === 402 || checkRes.headers.get('X-Stream-Error')) {
           setStreamError('Stream source unavailable.');
+          sendEvent('client_stream_error');
           return;
         }
       } catch {
         setStreamError('Stream source unavailable.');
+        sendEvent('client_stream_error');
         return;
       }
       setStreamUrl(url);
@@ -139,6 +147,7 @@ export default function WatchPortal({ params }: { params: Promise<{ id: string }
               sessionId,
               viewerWalletId: wId,
               amount: '0.000500',
+              filmId: id,
             }),
           });
 
@@ -294,9 +303,9 @@ export default function WatchPortal({ params }: { params: Promise<{ id: string }
               src={streamUrl}
               videoRef={videoRef}
               overlayVisible={showOverlay}
-              onPlay={() => { setIsPlaying(true); setShowOverlay(true); }}
-              onPause={() => { setIsPlaying(false); setShowOverlay(true); }}
-              onEnded={() => setVideoEnded(true)}
+              onPlay={() => { setIsPlaying(true); setShowOverlay(true); sendEvent('play_started'); }}
+              onPause={() => { setIsPlaying(false); setShowOverlay(true); sendEvent('play_paused'); }}
+              onEnded={() => { setVideoEnded(true); sendEvent('video_ended'); }}
               onError={(msg) => setStreamError(msg)}
             />
 
